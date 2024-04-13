@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clicker Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: black; /* Черный фон */
+    color: white;
+    padding-top: 50px;
+  }
+  #coin {
+    width: 200px;
+    cursor: pointer;
+    transition: transform 0.5s; /* Увеличение времени анимации при клике */
+    margin: auto;
+    display: block;
+  }
+  #counter {
+    font-size: 24px;
+    margin-top: 20px;
+  }
+  #cashOutButton {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<img id="coin" src="static/coin.png" alt="Coin with Dosh">
+
+<p id="counter">Total Clicks: 0</p>
+
+<button id="cashOutButton">Cash Out</button>
+
+<form id="withdrawForm">
+  <label for="withdrawAddress">Withdraw Address:</label>
+  <input type="text" id="withdrawAddress" name="withdrawAddress">
+  <input type="submit" value="Withdraw">
+</form>
+
+<script>
+  let totalClicks = 0;
+  const minWithdrawClicks = 1000000; // Минимальное количество кликов для вывода
+  let lastClickTime = new Date().getTime(); // Время последнего клика
+
+  // Функция для обработки клика на монету
+  function handleClick() {
+    const currentTime = new Date().getTime();
+    const elapsedTime = currentTime - lastClickTime;
+
+    // Проверяем, прошло ли уже 4 часа с последнего клика
+    if (elapsedTime >= 1000 * 60 * 60 * 4) {
+      totalClicks = 0; // Обнуляем счетчик кликов
+      lastClickTime = currentTime; // Обновляем время последнего клика
+    }
+
+    // Добавляем анимацию при клике
+    document.getElementById('coin').style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      document.getElementById('coin').style.transform = 'scale(1)';
+    }, 500); // Увеличение времени анимации при клике
+
+    totalClicks++;
+    updateCounter();
+  }
+
+  // Функция для обновления счетчика кликов
+  function updateCounter() {
+    document.getElementById('counter').textContent = `Total Clicks: ${totalClicks}`;
+    if (totalClicks >= minWithdrawClicks) {
+      document.getElementById('cashOutButton').style.display = 'block';
+      document.getElementById('coin').style.display = 'none';
+    }
+  }
+
+  // При клике на монету вызываем функцию handleClick
+  document.getElementById('coin').addEventListener('click', handleClick);
+
+  // При клике на кнопку "Cash Out" выводим сообщение о завершении игры
+  document.getElementById('cashOutButton').addEventListener('click', function() {
+    alert("Congratulations! You've reached 1,000,000 clicks!");
+  });
+
+  // При отправке формы вывода проверяем адрес и отправляем уведомление
+  document.getElementById('withdrawForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+    const withdrawAddress = document.getElementById('withdrawAddress').value;
+
+    if (totalClicks < minWithdrawClicks) {
+      alert('You need at least 1,000,000 clicks to withdraw coins.'); // Сообщение о минимальном количестве кликов
+    } else if (withdrawAddress === 'dosh_coin-sujnel.whjen12bjk') {
+      alert('Coins withdrawn successfully!'); // Вместо этого можно использовать отправку письма через API
+      document.getElementById('withdrawAddress').value = ''; // Обнуляем значение поля
+    } else {
+      alert('Incorrect withdrawal address! Please enter the correct address.'); // Выводим сообщение об ошибке
+    }
+  });
+
+  // Увеличение кликабельности каждые 4 часа
+  setInterval(function() {
+    if (totalClicks >= 1000) {
+      document.getElementById('coin').style.width = `${200 + totalClicks/1000}px`;
+    }
+  }, 1000 * 60 * 60 * 4); // 4 hours
+</script>
+
+</body>
+</html>
